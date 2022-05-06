@@ -17,11 +17,10 @@ MyLinearSystemSolver::~MyLinearSystemSolver() {
 }
 void MyLinearSystemSolver::SwapRows(std::size_t i, std::size_t j)
 {
-
     for(std::size_t k=0; k<_cols; k++)
     {
         double temp = (*this)(i,k);
-        (*this)(i,k)=(*this)(j,k);
+        (*this)(i,k)= (*this)(j,k);
         (*this)(j,k)=temp;
     }
 }
@@ -41,14 +40,14 @@ void MyLinearSystemSolver::GaussianElimination()
         }
         if(MaxValue==0)
         {
-            continue;
+            std::cout<<"the linear system has infinite root"<<std::endl;
+            exit(0);
+
         }
         if(MaxValueIndex!=col)
             this->SwapRows(col, MaxValueIndex);
-      //  std::cout<< (*this) <<std::endl;
         for (std::size_t row=col+1; row<_rows; ++row )
         {
-            //(*this)(row,col)=0;
             double f = (*this)(row,col)/(*this)(col,col);
             for (std::size_t i=col; i<_cols; ++i)
             {
@@ -62,23 +61,22 @@ void MyLinearSystemSolver::GaussianElimination()
 MyLinearSystemSolver MyLinearSystemSolver::BackSub()
 {
     MyLinearSystemSolver x(_rows,1);
-
     for (int i = _rows-1; i>=0; --i)
     {
-        x._data[i] = (*this)(i,_rows);
+        x._data[i] = double( (*this)(i,_rows));
         for (std::size_t j=i+1; j<_rows; ++j)
         {
-            x._data[i] -= (*this)(i,j) * x._data[j];
+            x._data[i] -=double( (*this)(i,j) * x._data[j]);
         }
 
-        x._data[i] = x._data[i]/(*this)(i,i);
+        x._data[i] = double(x._data[i]/(*this)(i,i));
     }
     return x;
 }
 
-MyLinearSystemSolver MyLinearSystemSolver::MatrixMultiplication(MyLinearSystemSolver &x)
+//this function has not been used
+MyLinearSystemSolver MyLinearSystemSolver::MatrixMultiplication(const MyLinearSystemSolver &x)
 {
-    //补上确保维度要相同的代码
     MyLinearSystemSolver y(_rows,x._cols);
     for (std::size_t i=0; i<_rows; ++i)
     {
@@ -103,6 +101,7 @@ MyLinearSystemSolver MyLinearSystemSolver::operator-(const MyLinearSystemSolver&
     return M;
 }
 
+//To verify if two matrix is same.
 bool MyLinearSystemSolver::operator==(const MyLinearSystemSolver& x)
 {
     int n = 0;
@@ -116,8 +115,8 @@ bool MyLinearSystemSolver::operator==(const MyLinearSystemSolver& x)
         {
             for (std::size_t j=0; j<_cols; ++j)
             {
-                if ((*this)(i,j)!=x(i,j))
-                    n+=n;
+                if (std::abs((*this)(i,j)-x(i,j))>10e-5)
+                    n+=1;
             }
         }
         if (n==0)
@@ -125,15 +124,16 @@ bool MyLinearSystemSolver::operator==(const MyLinearSystemSolver& x)
         else
             return false;
     }
+
 }
-//MyLinearSystemSolver&
+//To verify if the root we got is correct
 MyLinearSystemSolver MyLinearSystemSolver::verify(const MyLinearSystemSolver& sol)
 {
     MyLinearSystemSolver y(_rows,1);
     for (std::size_t i=0; i<_rows; ++i)
     {
-            for (std::size_t k=0; k<_rows; ++k)
-                y(i, 0) += (*this)(i,k) * sol(k,0);
+        for (std::size_t k=0; k<_rows; ++k)
+            y(i, 0) += (*this)(i,k) * sol(k,0);
     }
     for (std::size_t i=0; i<_rows; ++i)
     {

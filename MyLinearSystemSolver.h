@@ -32,7 +32,7 @@ public:
     void SwapRows(std::size_t i, std::size_t j);
     void GaussianElimination();
     MyLinearSystemSolver BackSub();
-    MyLinearSystemSolver MatrixMultiplication(MyLinearSystemSolver& x);
+    MyLinearSystemSolver MatrixMultiplication(const MyLinearSystemSolver& x);
     MyLinearSystemSolver verify(const MyLinearSystemSolver& sol);
 
 
